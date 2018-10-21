@@ -1,0 +1,16 @@
+{
+  "name": "nodemines",
+  "version": "1.0.0",
+  "description": "Buscaminas multijador",
+  "main": "client.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "Toni Portillo",
+  "license": "MIT",
+  "dependencies": {
+    "mongoose": "^5.3.4",
+    "net": "^1.0.2"
+  }
+}
