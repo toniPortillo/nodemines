@@ -2,8 +2,9 @@ const Net = require('net');
 const bcrypt = require('bcrypt');
 const server = new Net.Server();
 const port = 2050;
-let User = require ('./apps/users/models.js').User;
 
+let User = require ('./apps/users/models.js').User;
+let BCRYPT_SALT_ROUNDS = 12;
 
 class ControlMensaje {
     constructor (usuario, password, mensaje) {
@@ -72,11 +73,21 @@ server.on('connection', function(socket) {
                         username: controlmensaje.getUsuario(),
                         password: controlmensaje.getPassword()
                     });
-                    usuarioNuevo.save(function(err) {
-                        if(err) throw err;
-                        
-                        console.log("Usuario creado correctamente.")
-                    })
+                    bcrypt.hash(usuarioNuevo.password, BCRYPT_SALT_ROUNDS)
+                        .then(function(hashedPassword) {
+                            usuarioNuevo.password = hashedPassword;
+
+                            usuarioNuevo.save(function(err) {
+                                if(err) throw err;
+                                
+                                console.log("Usuario creado correctamente.")
+                            })
+                        })
+                        .catch(function(err) {
+                            console.log("Error registrando usuario: ");
+                            console.log(err);
+                            next();
+                        });
                 }
             });
         }
