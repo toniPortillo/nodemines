@@ -50,6 +50,16 @@ server.on('connection', function(socket) {
             
             case "PASSWORD":
             let correcionPassword = separaciones[1].split("\n");
+
+            User.getUserByUsername(controlmensaje.getUsuario())
+                .then(function(user) {
+                    return bcrypt.compare(correcionPassword, User.password);
+                })
+                .then(function(samePassword) {
+                    if(!samePassword) {
+                        sock.write("Error ")
+                    }
+                })
             
             console.log(correcionPassword[0]);
             break;

@@ -20,13 +20,14 @@ server.on('connection', function(sock){
     console.log("CONNECTED " + sock.remoteAddress + ':' + sock.remotePort);
     sockets.push(sock);
     let controlmensaje = new ControlMensaje();
+    
+    sockets.forEach(function(sock, index, array) {
+        sock.write(sock.remoteAddress + ':' + sock.remotePort + " Nuevo usuario conectado " + "\n");
+        sock.write("Numero de usuarios conectados: " + sockets.length.toString());
+    });
 
     sock.on('data', function(text) {
         console.log("DATA " + sock.remoteAddress + ':' + sock.remotePort);
-        sockets.forEach(function(sock, index, array) {
-            sock.write(sock.remoteAddress + ':' + sock.remotePort + " said " +
-            text + "\n");
-        });
 
         let separaciones = text.toString().split(" ");
         console.log(controlmensaje.getUsuario());
@@ -50,6 +51,39 @@ server.on('connection', function(sock){
                         sock.write("Usuario no registrado\n");
                     }
                 });
+            break;
+
+            case 'PASSWORD':
+                let correcionPassword = separaciones[1].split('\n');
+
+                User.find({username: controlmensaje.getUsuario()}, function(err, user) {
+               
+                    if(err) {
+                        console.log(String(err));
+                    }
+                    if(user.length === 1) {
+                        console.log("Entro donde las claves");
+                        bcrypt.compare(correcionPassword[0], user[0].password, function(err, res) {
+                            if(err) throw err;
+                            
+                            if(res){
+                                controlmensaje.setPassword(user[0].password);
+                                console.log("Contraseña correcta, usuario logueado.")
+                                console.log(controlmensaje.getUsuario());
+                                console.log(controlmensaje.getPassword());
+                                sock.write("Contraseña correcta, usuario logueado.")
+                            }else {
+                                console.log("Contraseña incorrecta, vuelva a introducirla");
+                            }
+                        });
+                    
+                    }else {
+                        console.log("Introduzca primero el nombre de usuario.\n");
+                        sock.write("Introduzca primero el nombre de usuario.\n");
+                        console.log("Esta password no corresponde a ningun usuario");
+                    }
+                });
+
             break;
 
             case 'REGISTRO':
