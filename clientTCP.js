@@ -29,11 +29,15 @@ client.connect(port, host, function(){
                 client.write(text);
 
             break;
+
+            case "INICIAR-PARTIDA\n":
+                client.write(text);
+
+            break;
             
             case "SALIR\n":
-                console.log(separaciones[0])
+
                 client.write(text);
-                client.end();
             break;
                 
             default:
